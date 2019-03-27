@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>拖动点中间弧线</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        .dot1,
+        .dot2 {
+            position: absolute;
+            z-index: 2;
+            width: 5px;
+            height: 5px;
+            background-color: #000;
+            border-radius: 50%;
+            display: none;
+        }
+
+        #box {
+            position: absolute;
+            width: 0px;
+            height: 100px;
+            /* background-color: #f99; */
+            border-top: 3px solid #000;
+            border-radius : 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 需求 : 有两个可拖动的点,两点之前曲线连接 -->
+    <div class="dot1"></div>
+    <div class="dot2"></div>
+    <div id="box"></div>
+    <script>
+        let dot1 = document.querySelector('.dot1');
+        let dot2 = document.querySelector('.dot2');
+        let box = document.getElementById('box');
+        //定义一个变量存第一次点击的鼠标坐标
+        let isDo = true;  //阀
+        let isDoT = false;
+        let dot1X = 0; //第一个点X值
+        let dot1Y = 0; //第一个点Y值
+        document.body.onclick = function (e) {
+            if (isDo) {
+                dot1.style.left = e.clientX + 'px';
+                dot1X = e.clientX;
+                dot1.style.top = e.clientY + 'px';
+                dot1Y = e.clientY;
+                dot1.style.display = 'block';
+                isDo = false;
+            }
+            dot2.style.left = e.clientX + 'px';
+            dot2.style.top = e.clientY + 'px';
+            dot2.style.display = 'block';
+            //改变box的位置
+            //①给box来个两点之间距离宽---勾股定理
+            let dotWidth = Math.sqrt((e.clientX - dot1X) * (e.clientX - dot1X) + (e.clientY - dot1Y) * (e.clientY - dot1Y));
+            //赋值
+            /*  console.log(dot1X);
+             console.log(dot1Y); */
+            box.style.width = dotWidth + 'px';
+            box.style.height = dotWidth + 'px';
+
+            //旋转----------反切求得旋转度数
+            let reg = -Math.atan((e.clientY - dot1Y) / (e.clientX - dot1X));//和数学坐标系不同
+            //根据弧度制求角度
+            box.style.left = dot1X + 'px';
+            box.style.top = dot1Y + 'px';
+            // console.log(dotWidth);
+            let d = reg / [2 * (Math.PI)] * 360;
+            // console.log(d);
+            d = e.clientX > dot1X ? d : d-180; //根据数学的-d+180 <=> -(d-180),如果第二个点在第一个点的左边就让d = d-180
+            //${(e.clientX-dot1X)/2 + dot1X}px ${(e.clientY-dot1Y)/2 + dot1Y}px
+            box.style.transformOrigin = `left top`;
+            // console.log((e.clientX-dot1X)/2 + dot1X);
+            // console.log((e.clientY-dot1Y)/2 + dot1Y);
+            box.style.transform = `rotate(${-d}deg) translateY(${-dotWidth / 2}px)`;
+        }
+        //拖动两个点------代码冗余,未封装
+        dot2.addEventListener('mousedown',e=>{
+            isDoT = true;
+            console.log(isDoT);
+            
+        })
+        document.body.addEventListener('mousemove',e=>{
+            console.log(isDoT);
+            if(!isDoT){
+                return;
+            }
+            dot2.style.left = e.clientX + 'px';
+            dot2.style.top = e.clientY + 'px';
+            //改变box的位置
+            //①给box来个两点之间距离宽---勾股定理
+            let dotWidth = Math.sqrt((e.clientX - dot1X) * (e.clientX - dot1X) + (e.clientY - dot1Y) * (e.clientY - dot1Y));
+            //赋值
+            /*  console.log(dot1X);
+             console.log(dot1Y); */
+            box.style.width = dotWidth + 'px';
+            box.style.height = dotWidth + 'px';
+
+            //旋转----------反切求得旋转度数
+            let reg = -Math.atan((e.clientY - dot1Y) / (e.clientX - dot1X));//和数学坐标系不同
+            //根据弧度制求角度
+            box.style.left = dot1X + 'px';
+            box.style.top = dot1Y + 'px';
+            // console.log(dotWidth);
+            let d = reg / [2 * (Math.PI)] * 360;
+            console.log(d);
+            d = e.clientX > dot1X ? d : d-180; //根据数学的-d+180 <=> -(d-180)
+            //${(e.clientX-dot1X)/2 + dot1X}px ${(e.clientY-dot1Y)/2 + dot1Y}px
+            box.style.transformOrigin = `left top`;
+            // console.log((e.clientX-dot1X)/2 + dot1X);
+            // console.log((e.clientY-dot1Y)/2 + dot1Y);
+            box.style.transform = `rotate(${-d}deg) translateY(${-dotWidth / 2}px)`;
+        })
+        document.body.addEventListener('mouseup',e=>{
+            isDoT = false;
+        })
+
+    </script>
+</body>
+
+</html>
